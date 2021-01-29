@@ -2,6 +2,8 @@ import Vue from "vue";
 import VueRouter from "vue-router";
 import Login from "../components/Login.vue";
 import Home from "../components/Home.vue";
+import Welcome from "../components/Welcome.vue";
+
 Vue.use(VueRouter);
 
 const routes = [
@@ -16,6 +18,14 @@ const routes = [
   {
     path: "/Home",
     component: Home,
+    redirect: "/welcome",
+    children: [
+      {
+        // 这 Home 组件里展示 Welcome 子组件
+        path: "/welcome",
+        component: Welcome,
+      },
+    ],
   },
 ];
 
@@ -32,7 +42,7 @@ router.beforeEach((to, from, next) => {
   const tokenStr = window.sessionStorage.getItem("token");
   // token 不存在那就跳转到登录页面
   if (!tokenStr) return next("/login");
-  // 否则 token 存在那就放行，【正常这里应该有个校验 token 有效性的一个接口，或者通过后续的响应拦截器去做】
+  // 否则 token 存在那就放行
   next();
 });
 
