@@ -22,6 +22,7 @@
           :collapse="isCollapse"
           :collapse-transition="false"
           router
+          :default-active="acvtivePtah"
         >
           <!-- 一级菜单 -->
           <el-submenu
@@ -41,6 +42,7 @@
               :index="'/' + subItem.path"
               v-for="subItem in item.children"
               :key="subItem.id"
+              @click="savaNavState('/' + subItem.path)"
             >
               <template slot="title">
                 <!-- 图标 -->
@@ -75,10 +77,12 @@ export default {
         145: "iconfont icon-baobiao",
       },
       isCollapse: false,
+      acvtivePtah: "",
     };
   },
   created() {
     this.getMenuList();
+    this.acvtivePtah = window.sessionStorage.getItem("acvtivePtah");
   },
   methods: {
     logout() {
@@ -94,6 +98,10 @@ export default {
     // 切换菜单的折叠与展开
     toggleCollapse() {
       this.isCollapse = !this.isCollapse;
+    },
+    savaNavState(acvtivePtah) {
+      window.sessionStorage.setItem("acvtivePtah", acvtivePtah);
+      this.acvtivePtah = acvtivePtah;
     },
   },
 };
