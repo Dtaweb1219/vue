@@ -46,7 +46,8 @@ export default {
       if (res.meta.status !== 200) {
         return this.$message.error("获取用户列表失败");
       }
-      this.userList = res.data;
+      this.userList = res.data.users;
+      this.total = res.data.total;
     },
   },
 };
