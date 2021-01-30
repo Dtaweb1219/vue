@@ -123,7 +123,22 @@
     </el-dialog>
     <!-- 修改用户的对话框 -->
     <el-dialog title="修改用户" :visible.sync="editDialogVisible" width="50%">
-      <span>这是一段信息</span>
+      <el-form
+        :model="editForm"
+        :rules="editFormRules"
+        ref="editFormRef"
+        label-width="70px"
+      >
+        <el-form-item label="用户名">
+          <el-input v-model="editForm.username" disabled></el-input>
+        </el-form-item>
+        <el-form-item label="邮箱" prop="email">
+          <el-input v-model="editForm.email"></el-input>
+        </el-form-item>
+        <el-form-item label="手机" prop="mobile">
+          <el-input v-model="editForm.mobile"></el-input>
+        </el-form-item>
+      </el-form>
       <span slot="footer" class="dialog-footer">
         <el-button @click="editDialogVisible = false">取 消</el-button>
         <el-button type="primary" @click="editDialogVisible = false"
@@ -271,6 +286,10 @@ export default {
       this.editForm = res.data;
       console.log(this.editForm);
       this.editDialogVisible = true;
+    },
+    // 监听修改用户对话框的关闭事件
+    editDialogClosed() {
+      this.$refs.editFormRef.resetFields();
     },
   },
 };
