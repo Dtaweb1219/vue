@@ -42,7 +42,7 @@
               :index="'/' + subItem.path"
               v-for="subItem in item.children"
               :key="subItem.id"
-              @click="savaNavState('/' + subItem.path)"
+              @click="saveNavState('/' + subItem.path)"
             >
               <template slot="title">
                 <!-- 图标 -->
@@ -64,6 +64,7 @@
 </template>
 
 <script>
+import hub from "../utils/hub.js";
 export default {
   data() {
     return {
@@ -83,6 +84,8 @@ export default {
   created() {
     this.getMenuList();
     this.acvtivePtah = window.sessionStorage.getItem("acvtivePtah");
+    // 定义一个事件监听，事件监听里面做 2 件事情，改变 activePath 和 本地的 sessionStorage
+    hub.$on("saveNavState", this.saveNavState);
   },
   methods: {
     logout() {
@@ -99,10 +102,14 @@ export default {
     toggleCollapse() {
       this.isCollapse = !this.isCollapse;
     },
-    savaNavState(acvtivePtah) {
+    saveNavState(acvtivePtah) {
       window.sessionStorage.setItem("acvtivePtah", acvtivePtah);
       this.acvtivePtah = acvtivePtah;
     },
+  },
+  beforeDestroy() {
+    // 移除事件监听，防止监听多次
+    hub.$off("saveNavState");
   },
 };
 </script>

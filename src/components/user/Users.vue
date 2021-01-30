@@ -30,13 +30,42 @@
             <el-switch v-model="scope.row.mg_state"></el-switch>
           </template>
         </el-table-column>
-        <el-table-column label="操作"></el-table-column>
+        <el-table-column label="操作" width="180px">
+          <template>
+            <!-- 修改 -->
+            <el-button
+              type="primary"
+              size="mini"
+              icon="el-icon-edit"
+            ></el-button>
+            <!-- 删除 -->
+            <el-button
+              type="danger"
+              size="mini"
+              icon="el-icon-delete"
+            ></el-button>
+            <!-- 分配角色 -->
+            <el-tooltip
+              effect="dark"
+              content="分配角色"
+              placement="top"
+              :enterable="false"
+            >
+              <el-button
+                type="warning"
+                size="mini"
+                icon="el-icon-setting"
+              ></el-button>
+            </el-tooltip>
+          </template>
+        </el-table-column>
       </el-table>
     </el-card>
   </div>
 </template>
 
 <script>
+import hub from "../../utils/hub.js";
 export default {
   data() {
     return {
@@ -51,6 +80,7 @@ export default {
   },
   created() {
     this.getUserList();
+    hub.$emit("saveNavState", "/users");
   },
   methods: {
     async getUserList() {
