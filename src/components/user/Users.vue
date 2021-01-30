@@ -46,14 +46,14 @@
             ></el-switch>
           </template>
         </el-table-column>
-        <el-table-column label="操作">
-          <template width="180px">
+        <el-table-column label="操作" width="180px">
+          <template slot-scope="scope">
             <!-- 修改 -->
             <el-button
               type="primary"
               size="mini"
               icon="el-icon-edit"
-              @click="showEditDialog()"
+              @click="showEditDialog(scope.row.id)"
             ></el-button>
             <!-- 删除 -->
             <el-button
@@ -166,6 +166,8 @@ export default {
       total: 0,
       addDialogVisible: false,
       editDialogVisible: false,
+      // 查询到的用户信息对象
+      editForm: {},
       // 添加用户的表单数据
       addForm: {
         username: "",
@@ -262,7 +264,12 @@ export default {
       });
     },
     // 修改用户
-    showEditDialog() {
+    async showEditDialog(id) {
+      const { data: res } = await this.$http.get("users/" + id);
+      if (res.meta.status !== 200)
+        return this.$message.error("查询用户信息失败");
+      this.editForm = res.data;
+      console.log(this.editForm);
       this.editDialogVisible = true;
     },
   },
