@@ -183,6 +183,22 @@ export default {
       editDialogVisible: false,
       // 查询到的用户信息对象
       editForm: {},
+      editFormRules: {
+        email: [
+          { required: true, message: "请输入邮箱", trigger: "blur" },
+          {
+            validator: checkEmail,
+            trigger: "blur",
+          },
+        ],
+        mobile: [
+          { required: true, message: "请输入手机号", trigger: "blur" },
+          {
+            validator: checkMobile,
+            trigger: "blur",
+          },
+        ],
+      },
       // 添加用户的表单数据
       addForm: {
         username: "",
