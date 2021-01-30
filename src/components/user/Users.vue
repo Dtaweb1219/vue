@@ -53,6 +53,7 @@
               type="primary"
               size="mini"
               icon="el-icon-edit"
+              @click="showEditDialog()"
             ></el-button>
             <!-- 删除 -->
             <el-button
@@ -120,6 +121,16 @@
         <el-button type="primary" @click="addUser">确 定</el-button>
       </span>
     </el-dialog>
+    <!-- 修改用户的对话框 -->
+    <el-dialog title="修改用户" :visible.sync="editDialogVisible" width="50%">
+      <span>这是一段信息</span>
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="editDialogVisible = false">取 消</el-button>
+        <el-button type="primary" @click="editDialogVisible = false"
+          >确 定</el-button
+        >
+      </span>
+    </el-dialog>
   </div>
 </template>
 
@@ -154,6 +165,7 @@ export default {
       userlist: [],
       total: 0,
       addDialogVisible: false,
+      editDialogVisible: false,
       // 添加用户的表单数据
       addForm: {
         username: "",
@@ -248,6 +260,10 @@ export default {
         // 刷新用户列表
         this.getUserList();
       });
+    },
+    // 修改用户
+    showEditDialog() {
+      this.editDialogVisible = true;
     },
   },
 };
