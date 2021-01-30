@@ -21,7 +21,8 @@ import {
   Table,
   TableColumn,
   Switch,
-  tooltip,
+  Tooltip,
+  Pagination,
 } from "element-ui";
 
 Vue.use(Button);
@@ -44,6 +45,7 @@ Vue.use(Col);
 Vue.use(Table);
 Vue.use(TableColumn);
 Vue.use(Switch);
-Vue.use(tooltip);
+Vue.use(Tooltip);
+Vue.use(Pagination);
 // 把弹框组件挂着到了 vue 的原型对象上，这样每一个组件都可以直接通过 this 访问
 Vue.prototype.$message = Message;
