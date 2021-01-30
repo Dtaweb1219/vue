@@ -2,12 +2,14 @@
   <div>
     <!-- 面包屑导航区域 -->
     <el-breadcrumb separator-class="el-icon-arrow-right">
-      <el-breadcrumb-item :to="{ path: '/home' }">首页</el-breadcrumb-item>
-      <el-breadcrumb-item>用户管理</el-breadcrumb-item>
-      <el-breadcrumb-item>用户列表</el-breadcrumb-item>
+      <el-breadcrumb-item :to="{ path: '/' }">首页</el-breadcrumb-item>
+      <el-breadcrumb-item>活动管理</el-breadcrumb-item>
+      <el-breadcrumb-item>活动列表</el-breadcrumb-item>
+      <el-breadcrumb-item>活动详情</el-breadcrumb-item>
     </el-breadcrumb>
     <!-- 卡片视图区域 -->
     <el-card>
+      <!-- 搜索与添加区域 -->
       <el-row :gutter="20">
         <el-col :span="8">
           <el-input
@@ -31,7 +33,7 @@
       </el-row>
       <!-- 用户列表区域 -->
       <el-table :data="userlist" border stripe>
-        <el-table-column type="index" label="#"></el-table-column>
+        <el-table-column type="index"></el-table-column>
         <el-table-column label="姓名" prop="username"></el-table-column>
         <el-table-column label="邮箱" prop="email"></el-table-column>
         <el-table-column label="电话" prop="mobile"></el-table-column>
@@ -44,8 +46,8 @@
             ></el-switch>
           </template>
         </el-table-column>
-        <el-table-column label="操作" width="180px">
-          <template>
+        <el-table-column label="操作">
+          <template width="180px">
             <!-- 修改 -->
             <el-button
               type="primary"
@@ -74,6 +76,7 @@
           </template>
         </el-table-column>
       </el-table>
+      <!-- 分页组件 -->
       <el-pagination
         @size-change="handleSizeChange"
         @current-change="handleCurrentChange"
@@ -82,11 +85,10 @@
         :page-size="queryInfo.pagesize"
         layout="total, sizes, prev, pager, next, jumper"
         :total="total"
-      >
-      </el-pagination>
+      ></el-pagination>
     </el-card>
     <!-- 添加用户对话框 -->
-    <el-dialog title="提示" :visible.sync="addDialogVisible" width="30%">
+    <el-dialog title="添加用户" :visible.sync="addDialogVisible" width="30%">
       <!-- 内容主体 -->
       <el-form
         :model="addForm"
@@ -119,13 +121,31 @@
 </template>
 
 <script>
-import hub from "../../utils/hub.js";
 export default {
   data() {
+    // 验证邮箱的规则
+    const checkEmail = (rule, value, cb) => {
+      const regEmail = /^([a-zA-Z0-9_-])+@([a-zA-Z0-9_-])+(\.[a-zA-Z0-9_-])+/;
+      if (regEmail.test(value)) {
+        return cb();
+      }
+      cb(new Error("请输入合法的邮箱"));
+    };
+    // 验证手机号的规则
+    const checkMobile = (rule, value, cb) => {
+      const regMobile = /^(0|86|17951)?(13[0-9]|15[012356789]|17[678]|18[0-9]|14[57])[0-9]{8}$/;
+      if (regMobile.test(value)) {
+        return cb();
+      }
+      cb(new Error("请输入合法的手机"));
+    };
     return {
+      // 获取用户列表的参数对象
       queryInfo: {
         query: "",
+        // 当前的页数
         pagenum: 1,
+        // 当前每页显示多少条数据
         pagesize: 2,
       },
       userlist: [],
@@ -158,14 +178,22 @@ export default {
             trigger: "blur",
           },
         ],
-        email: [{ required: true, message: "请输入邮箱", trigger: "blur" }],
-        mobile: [{ required: true, message: "请输入手机", trigger: "blur" }],
+        email: [
+          { required: true, message: "请输入邮箱", trigger: "blur" },
+          { validator: checkEmail, trigger: "blur" },
+        ],
+        mobile: [
+          { required: true, message: "请输入手机", trigger: "blur" },
+          {
+            validator: checkMobile,
+            trigger: "blur",
+          },
+        ],
       },
     };
   },
   created() {
     this.getUserList();
-    hub.$emit("saveNavState", "/users");
   },
   methods: {
     async getUserList() {
@@ -178,23 +206,27 @@ export default {
       this.userlist = res.data.users;
       this.total = res.data.total;
     },
+    // 监听 pagesize 改变的事件
     handleSizeChange(newSize) {
       this.queryInfo.pagesize = newSize;
       this.getUserList();
     },
+    // 监听页码值改变的事件
     handleCurrentChange(newPage) {
       this.queryInfo.pagenum = newPage;
       this.getUserList();
     },
+    // 监听 switch 开关状态的变化
     async userStateChanged(userinfo) {
       const { data: res } = await this.$http.put(
         `users/${userinfo.id}/state/${userinfo.mg_state}`
       );
       if (res.meta.status !== 200) {
+        // 既然修改失败了，还需要把界面上的状态恢复
         userinfo.mg_state = !userinfo.mg_state;
-        return this.$message.error("更新用户状态失败!");
+        return this.$message.error("更新用户状态失败");
       }
-      this.$message.success("更新用户状态成功!");
+      this.$message.success("更新用户状态成功");
     },
   },
 };
