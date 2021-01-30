@@ -88,7 +88,12 @@
       ></el-pagination>
     </el-card>
     <!-- 添加用户对话框 -->
-    <el-dialog title="添加用户" :visible.sync="addDialogVisible" width="30%">
+    <el-dialog
+      title="添加用户"
+      :visible.sync="addDialogVisible"
+      width="30%"
+      @close="addDialogClosed"
+    >
       <!-- 内容主体 -->
       <el-form
         :model="addForm"
@@ -227,6 +232,10 @@ export default {
         return this.$message.error("更新用户状态失败");
       }
       this.$message.success("更新用户状态成功");
+    },
+    // 监听添加用户对话框的关闭事件
+    addDialogClosed() {
+      this.$refs.addFormRef.resetFields();
     },
   },
 };
