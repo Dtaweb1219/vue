@@ -26,7 +26,11 @@
             >
               <!-- 渲染一级权限 -->
               <el-col :span="5">
-                <el-tag>{{ item1.authName }}</el-tag>
+                <el-tag
+                  closable
+                  @close="removeRightById(scope.row, item1.id)"
+                  >{{ item1.authName }}</el-tag
+                >
                 <i class="el-icon-caret-right"></i>
               </el-col>
               <el-col :span="19">
@@ -37,17 +41,21 @@
                   :key="item2.id"
                 >
                   <el-col :span="6">
-                    <el-tag type="success">{{ item2.authName }}</el-tag>
+                    <el-tag
+                      closable
+                      type="success"
+                      @close="removeRightById(scope.row, item2.id)"
+                      >{{ item2.authName }}</el-tag
+                    >
                     <i class="el-icon-caret-right"></i>
                   </el-col>
                   <el-col :span="18">
                     <!-- 渲染三级权限 -->
                     <el-tag
-                      type="warning"
-                      v-for="item3 in item2.children"
-                      :key="item3.id"
                       closable
                       @close="removeRightById(scope.row, item3.id)"
+                      v-for="item3 in item2.children"
+                      :key="item3.id"
                       >{{ item3.authName }}</el-tag
                     >
                   </el-col>
@@ -61,7 +69,7 @@
         <el-table-column label="角色名称" prop="roleName"></el-table-column>
         <el-table-column label="角色描述" prop="roleDesc"></el-table-column>
         <el-table-column label="操作" width="300px">
-          <template>
+          <template slot-scope="scope">
             <el-button type="primary" size="mini" icon="el-icon-edit"
               >编辑</el-button
             >
@@ -72,7 +80,7 @@
               type="warning"
               size="mini"
               icon="el-icon-setting"
-              @click="showSetRightDialog"
+              @click="showSetRightDialog(scope.row)"
               >分配权限</el-button
             >
           </template>
@@ -94,12 +102,11 @@
         node-key="id"
         default-expand-all
         :default-checked-keys="defKeys"
+        ref="treeRef"
       ></el-tree>
       <span slot="footer" class="dialog-footer">
         <el-button @click="setRightDialogVisible = false">取 消</el-button>
-        <el-button type="primary" @click="setRightDialogVisible = false"
-          >确 定</el-button
-        >
+        <el-button type="primary" @click="allotRights">确 定</el-button>
       </span>
     </el-dialog>
   </div>
@@ -120,7 +127,9 @@ export default {
         children: "children", // 通过 children 树形实现父子节点的嵌套
       },
       // 默认选中的权限 ID，三级节点的 ID
-      defKeys: [101],
+      defKeys: [],
+      // 当前角色 ID
+      roleId: "",
     };
   },
   created() {
@@ -135,6 +144,7 @@ export default {
       }
       this.rolelist = res.data;
     },
+    // 根据 ID 删除对应的权限
     async removeRightById(role, rightId) {
       // 弹框提示是否删除
       const confirmResult = await this.$confirm(
@@ -149,16 +159,22 @@ export default {
       if (confirmResult !== "confirm") {
         return this.$message.info("取消了删除");
       }
+      // 确认了删除
+      // 角色ID、权限ID
       const { data: res } = await this.$http.delete(
         `roles/${role.id}/rights/${rightId}`
       );
       if (res.meta.status !== 200) {
         return this.$message.error("删除权限失败");
       }
+      // 这样会发生完整渲染，导致收起
+      // this.getRolesList()
       role.children = res.data;
     },
     // 展示分配权限的对话框
     async showSetRightDialog(role) {
+      // 存储角色 ID，修改角色权限接口会用到
+      this.roleId = role.id;
       // 获取所有权限的数据
       const { data: res } = await this.$http.get("rights/tree");
       if (res.meta.status !== 200) {
@@ -180,6 +196,27 @@ export default {
     // 监听分配权限对话框的关闭事件
     setRightDialogClosed() {
       this.defKeys = [];
+    },
+    // 点击为角色分配权限
+    async allotRights() {
+      const keys = [
+        ...this.$refs.treeRef.getCheckedKeys(),
+        ...this.$refs.treeRef.getHalfCheckedKeys(),
+      ];
+      const idStr = keys.join();
+      const { data: res } = await this.$http.post(
+        `roles/${this.roleId}/rights`,
+        {
+          rids: idStr,
+        }
+      );
+      if (res.meta.status !== 200) {
+        return this.$message.error("分配权限失败");
+      }
+      this.$message.success("分配权限成功");
+      // 重新渲染整个角色列表
+      this.getRolesList();
+      this.setRightDialogVisible = false;
     },
   },
 };
