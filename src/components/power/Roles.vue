@@ -47,7 +47,7 @@
                       v-for="item3 in item2.children"
                       :key="item3.id"
                       closable
-                      @close="removeRightById()"
+                      @close="removeRightById(scope.row, item3.id)"
                       >{{ item3.authName }}</el-tag
                     >
                   </el-col>
@@ -98,7 +98,7 @@ export default {
       }
       this.rolelist = res.data;
     },
-    async removeRightById() {
+    async removeRightById(role, rightId) {
       // 弹框提示是否删除
       const confirmResult = await this.$confirm(
         "此操作将永久删除该文件, 是否继续?",
@@ -112,6 +112,13 @@ export default {
       if (confirmResult !== "confirm") {
         return this.$message.info("取消了删除");
       }
+      const { data: res } = await this.$http.delete(
+        `roles/${role.id}/rights/${rightId}`
+      );
+      if (res.meta.status !== 200) {
+        return this.$message.error("删除权限失败");
+      }
+      role.children = res.data;
     },
   },
 };
