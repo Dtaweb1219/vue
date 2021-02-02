@@ -24,6 +24,7 @@
         index-text="#"
         border
         :show-row-hover="false"
+        class="treeTable"
       >
         <!-- 是否有效 -->
         <template slot="isok" slot-scope="scope">
@@ -148,6 +149,8 @@ export default {
           { required: true, message: "请输入分类名称", trigger: "blur" },
         ],
       },
+      // 父级分类列表
+      parentCateList: [],
     };
   },
   created() {
@@ -178,10 +181,29 @@ export default {
       this.getCateList();
     },
     showAddCateDialog() {
+      // 获取父级分类的数据
+      this.getParentCateList();
       this.addCateDialogVisible = true;
+    },
+    // 获取父级分类的列表
+    async getParentCateList() {
+      const { data: res } = await this.$http.get("categories", {
+        params: {
+          type: 2, // 获取前两级的所有分类
+        },
+      });
+      if (res.meta.status !== 200) {
+        return this.$message.error("获取父级分类数据失败");
+      }
+      // 存一下
+      this.parentCateList = res.data;
     },
   },
 };
 </script>
 
-<style lang="less" scoped></style>
+<style lang="less" scoped>
+.treeTable {
+  margin-top: 15px;
+}
+</style>
