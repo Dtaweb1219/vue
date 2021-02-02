@@ -55,8 +55,8 @@
                 <!-- 输入的文本框 -->
                 <el-input
                   class="input-new-tag"
-                  v-if="inputVisible"
-                  v-model="inputValue"
+                  v-if="scope.row.inputVisible"
+                  v-model="scope.row.inputValue"
                   ref="saveTagInput"
                   size="small"
                   @keyup.enter.native="handleInputConfirm"
@@ -68,7 +68,7 @@
                   v-else
                   class="button-new-tag"
                   size="small"
-                  @click="showInput"
+                  @click="showInput(scope.row)"
                   >+ New Tag</el-button
                 >
               </template>
@@ -272,6 +272,10 @@ export default {
       res.data.forEach((item) => {
         // ''.split(' ') => ['']
         item.attr_vals = item.attr_vals ? item.attr_vals.split(" ") : [];
+        // 控制文本框的显示与隐藏
+        item.inputVisible = false;
+        // 文本框输入的值
+        item.inputValue = "";
       });
       if (res.meta.status !== 200) {
         return this.$message.error("获取参数列表失败");
@@ -371,8 +375,8 @@ export default {
     // 文本框失去焦点,或按下 Enter 都会触发
     handleInputConfirm() {},
     // 点击按钮,展示文本输入框
-    showInput() {
-      this.inputVisible = true;
+    showInput(row) {
+      row.inputVisible = true;
     },
   },
   computed: {
