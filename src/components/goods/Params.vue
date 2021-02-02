@@ -407,4 +407,7 @@ export default {
 .cat_opt {
   margin: 15px 0;
 }
+.input-new-tag {
+  width: 150px;
+}
 </style>
