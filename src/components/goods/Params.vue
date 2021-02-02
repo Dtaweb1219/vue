@@ -43,13 +43,14 @@
           <!-- 动态参数表格 -->
           <el-table :data="manyTableData" border stripe>
             <!-- 展开行的操作 -->
-            <!-- 循环渲染tag标签 -->
             <el-table-column type="expand">
               <template slot-scope="scope">
+                <!-- 循环渲染 Tag 标签 -->
                 <el-tag
                   v-for="(item, i) in scope.row.attr_vals"
                   :key="i"
                   closable
+                  @close="handleClose(i, scope.row)"
                   >{{ item }}</el-tag
                 >
                 <!-- 输入的文本框 -->
@@ -61,8 +62,7 @@
                   size="small"
                   @keyup.enter.native="handleInputConfirm(scope.row)"
                   @blur="handleInputConfirm(scope.row)"
-                >
-                </el-input>
+                ></el-input>
                 <!-- 添加的按钮 -->
                 <el-button
                   v-else
@@ -111,7 +111,36 @@
           <!-- 静态属性表格 -->
           <el-table :data="onlyTableData" border stripe>
             <!-- 展开行的操作 -->
-            <el-table-column type="expand"></el-table-column>
+            <el-table-column type="expand">
+              <template slot-scope="scope">
+                <!-- 循环渲染 Tag 标签 -->
+                <el-tag
+                  v-for="(item, i) in scope.row.attr_vals"
+                  :key="i"
+                  closable
+                  @close="handleClose(i, scope.row)"
+                  >{{ item }}</el-tag
+                >
+                <!-- 输入的文本框 -->
+                <el-input
+                  class="input-new-tag"
+                  v-if="scope.row.inputVisible"
+                  v-model="scope.row.inputValue"
+                  ref="saveTagInput"
+                  size="small"
+                  @keyup.enter.native="handleInputConfirm(scope.row)"
+                  @blur="handleInputConfirm(scope.row)"
+                ></el-input>
+                <!-- 添加的按钮 -->
+                <el-button
+                  v-else
+                  class="button-new-tag"
+                  size="small"
+                  @click="showInput(scope.row)"
+                  >+ New Tag</el-button
+                >
+              </template>
+            </el-table-column>
             <!-- 索引列 -->
             <el-table-column type="index"></el-table-column>
             <el-table-column
@@ -227,9 +256,9 @@ export default {
         ],
       },
       // 控制按钮与文本框的切换显示
-      inputVisible: false,
+      // inputVisible: false,
       // 文本框中输入的内容
-      inputValue: "",
+      // inputValue: ''
     };
   },
   created() {
@@ -257,6 +286,9 @@ export default {
       if (this.selectedCateKeys.length !== 3) {
         // 证明选中的不是 3 级分类
         this.selectedCateKeys = [];
+        // 假如先选择 3 级分类，再次选择 2 级分类时要清除表格数据
+        this.manyTableData = [];
+        this.onlyTableData = [];
         return false;
       }
       // 确定了选中的是 3 级分类。根据所选分类的 ID，和当前所处的面板，获取对应的参数
@@ -274,7 +306,7 @@ export default {
         item.attr_vals = item.attr_vals ? item.attr_vals.split(" ") : [];
         // 控制文本框的显示与隐藏
         item.inputVisible = false;
-        // 文本框输入的值
+        // 文本框中输入的值
         item.inputValue = "";
       });
       if (res.meta.status !== 200) {
@@ -384,6 +416,19 @@ export default {
       row.inputValue = "";
       row.inputVisible = false;
       // 发情请求，保存这次操作
+      // const { data: res } = await this.$http.put(`categories/${this.cateId}/attributes/${row.attr_id}`, {
+      //   attr_name: row.attr_name,
+      //   attr_sel: row.attr_sel,
+      //   attr_vals: row.attr_vals.join(' ')
+      // })
+      // if (res.meta.status !== 200) {
+      //   return this.$message.error('添加参数项失败')
+      // }
+      // this.$message.success('添加参数成功')
+      this.saveAttrVals(row);
+    },
+    // 将对 attr_vals 的操作，保存到数据库
+    async saveAttrVals(row) {
       const { data: res } = await this.$http.put(
         `categories/${this.cateId}/attributes/${row.attr_id}`,
         {
@@ -397,7 +442,6 @@ export default {
       }
       this.$message.success("添加参数成功");
     },
-
     // 点击按钮展示输入文本框
     showInput(row) {
       row.inputVisible = true;
@@ -406,6 +450,11 @@ export default {
       this.$nextTick((_) => {
         this.$refs.saveTagInput.$refs.input.focus();
       });
+    },
+    // 删除对应的参数和选项
+    handleClose(i, row) {
+      row.attr_vals.splice(i, 1);
+      this.saveAttrVals(row);
     },
   },
   computed: {
@@ -440,7 +489,10 @@ export default {
 .cat_opt {
   margin: 15px 0;
 }
+.el-tag {
+  margin: 0 10px;
+}
 .input-new-tag {
-  width: 150px;
+  width: 120px;
 }
 </style>
