@@ -54,6 +54,15 @@
         </template>
       </tree-table>
       <!-- 分页区域 -->
+      <el-pagination
+        @size-change="handleSizeChange"
+        @current-change="handleCurrentChange"
+        :current-page="queryInfo.pagenum"
+        :page-sizes="[3, 5, 10, 15]"
+        :page-size="queryInfo.pagesize"
+        layout="total, sizes, prev, pager, next, jumper"
+        :total="total"
+      ></el-pagination>
     </el-card>
   </div>
 </template>
@@ -115,9 +124,18 @@ export default {
       // 为总数据条数赋值
       this.total = res.data.total;
     },
+    // 监听 pagesize 变化
+    handleSizeChange(newSize) {
+      this.queryInfo.pagesize = newSize;
+      this.getCateList();
+    },
+    // 监听 pagenum 变化
+    handleCurrentChange(newPage) {
+      this.queryInfo.pagenum = newPage;
+      this.getCateList();
+    },
   },
 };
 </script>
 
 <style lang="less" scoped></style>
-© 2021 GitHub, Inc.
