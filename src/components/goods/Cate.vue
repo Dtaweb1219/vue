@@ -15,7 +15,6 @@
       </el-row>
       <!-- 表格区域 -->
       <tree-table
-        :expand-type="false"
         :data="catelist"
         :columns="columns"
         :selection-type="false"
@@ -24,6 +23,7 @@
         border
         :show-row-hover="false"
       >
+        <!-- 是否有效 -->
         <template slot="isok" slot-scope="scope">
           <i
             class="el-icon-success"
@@ -31,6 +31,26 @@
             style="color: lightgreen;"
           ></i>
           <i class="el-icon-error" v-else style="color: red;"></i>
+        </template>
+        <!-- 排序 -->
+        <template slot="order" slot-scope="scope">
+          <el-tag size="mini" v-if="scope.row.cat_level === 0">一级</el-tag>
+          <el-tag
+            type="success"
+            size="mini"
+            v-else-if="scope.row.cat_level === 1"
+            >二级</el-tag
+          >
+          <el-tag type="warning" size="mini" v-else>三级</el-tag>
+        </template>
+        <!-- 操作 -->
+        <template slot="opt">
+          <el-button type="primary" icon="el-icon-edit" size="mini"
+            >编辑</el-button
+          >
+          <el-button type="danger" icon="el-icon-delete" size="mini"
+            >删除</el-button
+          >
         </template>
       </tree-table>
       <!-- 分页区域 -->
@@ -65,6 +85,16 @@ export default {
           // 当前列使用的模板名称
           template: "isok",
         },
+        {
+          label: "排序",
+          type: "template",
+          template: "order",
+        },
+        {
+          label: "操作",
+          type: "template",
+          template: "opt",
+        },
       ],
     };
   },
@@ -84,10 +114,10 @@ export default {
       this.catelist = res.data.result;
       // 为总数据条数赋值
       this.total = res.data.total;
-      console.log(this.catelist);
     },
   },
 };
 </script>
 
 <style lang="less" scoped></style>
+© 2021 GitHub, Inc.
