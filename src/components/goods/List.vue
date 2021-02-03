@@ -24,7 +24,7 @@
           </el-input>
         </el-col>
         <el-col :span="4">
-          <el-button type="primary">添加商品</el-button>
+          <el-button type="primary" @click="goAddpage">添加商品</el-button>
         </el-col>
       </el-row>
       <!-- table 表格区域 -->
@@ -41,7 +41,7 @@
           prop="goods_weight"
           width="70"
         ></el-table-column>
-        <el-table-column label="创建时间" prop="add_time" width="140">
+        <el-table-column label="创建时间" prop="add_time" width="180">
           <template slot-scope="scope">{{
             scope.row.add_time | dateFormat
           }}</template>
@@ -138,6 +138,9 @@ export default {
       }
       this.$message.success("删除成功");
       this.getGoodsList();
+    },
+    goAddpage() {
+      this.$router.push("/goods/add");
     },
   },
 };

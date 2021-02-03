@@ -33,6 +33,8 @@ import {
   Alert,
   Tabs,
   TabPane,
+  Steps,
+  Step,
 } from "element-ui";
 
 Vue.use(Button);
@@ -66,6 +68,8 @@ Vue.use(Cascader);
 Vue.use(Alert);
 Vue.use(Tabs);
 Vue.use(TabPane);
+Vue.use(Steps);
+Vue.use(Step);
 // 把弹框组件挂着到了 vue 的原型对象上，这样每一个组件都可以直接通过 this 访问
 Vue.prototype.$message = Message;
 Vue.prototype.$confirm = MessageBox.confirm;
